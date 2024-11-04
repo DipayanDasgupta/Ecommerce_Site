@@ -2,6 +2,17 @@
 
 // Get the cart from localStorage or initialize as empty
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
+// js/scripts.js
+
+let cartCount = 0;
+
+// Function to add a product to the cart
+function addToCart(productId) {
+    cartCount++;
+    document.getElementById('cart-count').innerText = cartCount;
+    alert('Product added to cart!');
+}
+
 
 // Function to save cart to localStorage
 function saveCart() {
@@ -75,4 +86,55 @@ window.addEventListener("load", () => {
             .then(products => displayCartItems(products))
             .catch(error => console.error("Error loading products:", error));
     }
+    document.addEventListener("DOMContentLoaded", () => {
+        updateCartCount();
+        displayCartItems();
+    });
+    
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    
+    function addToCart(productId) {
+        const existingItem = cart.find(item => item.id === productId);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ id: productId, quantity: 1 });
+        }
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCount();
+        alert("Product added to cart!");
+    }
+    
+    function updateCartCount() {
+        document.getElementById("cart-count").innerText = cart.reduce((acc, item) => acc + item.quantity, 0);
+    }
+    
+    function displayCartItems() {
+        const cartItemsDiv = document.getElementById("cart-items");
+        cartItemsDiv.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <h3>Product ID: ${item.id}</h3>
+                <label>Quantity:</label>
+                <input type="number" value="${item.quantity}" onchange="updateItemQuantity(${item.id}, this.value)">
+                <button onclick="removeFromCart(${item.id})">Remove</button>
+            </div>
+        `).join("");
+    }
+    
+    function updateItemQuantity(id, quantity) {
+        const item = cart.find(item => item.id === id);
+        item.quantity = parseInt(quantity, 10);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCount();
+    }
+    
+    function removeFromCart(id) {
+        cart = cart.filter(item => item.id !== id);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        displayCartItems();
+        updateCartCount();
+    }
+    
+
+    
 });
